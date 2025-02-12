@@ -1,4 +1,4 @@
-import 'package:dart_types_supabase/dart_types_supabase.dart';
+import 'package:supabase_helper/src/supabase_helper_base.dart';
 import 'package:test/test.dart';
 
 void main() {
