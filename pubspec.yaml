@@ -20,5 +20,5 @@ dev_dependencies:
   test: ^1.25.15
 
 executables:
-  supabase_helper:
+  supabase_helper: bin/supabase_helper.dart
 

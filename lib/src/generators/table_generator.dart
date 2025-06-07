@@ -151,7 +151,7 @@ class TableGenerator {
         final formatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
         final formattedCode = formatter.format(fileBuffer.toString());
 
-        await File(path.join(schemaDir.path, fileName))
+        await File(path.join(schemaDir.path, toSnakeCase(fileName)))
             .writeAsString(formattedCode);
 
         print('  ✅  Successfully generated $className');
