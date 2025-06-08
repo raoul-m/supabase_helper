@@ -5,10 +5,11 @@ import 'package:supabase_helper/supabase_helper.dart';
 
 Future<void> main(List<String> args) async {
   final parser = ArgParser()
-    ..addOption('project-ref', help: 'Supabase project reference ID', mandatory: true)
+    ..addOption('project-ref',
+        help: 'Supabase project reference ID', mandatory: true)
     ..addOption('access-token', help: 'Supabase access-token', mandatory: true)
     ..addOption('output', abbr: 'o')
-    ..addOption('config', abbr: 'c', defaultsTo: 'dart_types_supabase.yaml');
+    ..addOption('config', abbr: 'c', defaultsTo: 'supabase_helper.yaml');
   print('✅  Supabase Helper is powering up!');
 
   final results = parser.parse(args);
@@ -44,8 +45,11 @@ Future<void> main(List<String> args) async {
     }
 
     print('✅  Successfully generated all models!');
-    if (config.generateIsar || config.generateJson || config.annotations.isNotEmpty) {
-      print('✅  Annotations added to files. Don\'t forget to run build_runner if necessary!');
+    if (config.generateIsar ||
+        config.generateJson ||
+        config.annotations.isNotEmpty) {
+      print(
+          '✅  Annotations added to files. Don\'t forget to run build_runner if necessary!');
     }
   } catch (e) {
     print('❌ Error: $e');
@@ -56,7 +60,8 @@ Future<void> main(List<String> args) async {
   }
 }
 
-Future<List<Map<String, dynamic>>> _fetchEnums(SupabaseManagementApi api, List<String> schemas) async {
+Future<List<Map<String, dynamic>>> _fetchEnums(
+    SupabaseManagementApi api, List<String> schemas) async {
   final enums = await api.getEnums(schemas);
   final result = <Map<String, dynamic>>[];
   for (final e in enums) {
@@ -67,7 +72,8 @@ Future<List<Map<String, dynamic>>> _fetchEnums(SupabaseManagementApi api, List<S
   return result;
 }
 
-Future<Map<String,Map<String,List<TableColumn>>>> _fetchTables(SupabaseManagementApi api, List<String> schemas) async {
+Future<Map<String, Map<String, List<TableColumn>>>> _fetchTables(
+    SupabaseManagementApi api, List<String> schemas) async {
   final columns = await api.getColumns(schemas);
 
   print('✅  Tables fetched');
@@ -77,7 +83,8 @@ Future<Map<String,Map<String,List<TableColumn>>>> _fetchTables(SupabaseManagemen
   return groupedColumns;
 }
 
-Future<List<Map<String, dynamic>>> _fetchFunctions(SupabaseManagementApi api, List<String> schemas) async {
+Future<List<Map<String, dynamic>>> _fetchFunctions(
+    SupabaseManagementApi api, List<String> schemas) async {
   final functions = await api.getFunctions(schemas);
   print('✅  Functions fetched');
   return functions;
