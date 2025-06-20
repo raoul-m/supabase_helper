@@ -1,6 +1,8 @@
 import 'dart:io';
+
 import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart' as path;
+
 import '../columns_mapper.dart';
 import '../config/config.dart';
 import '../supabase_type_mapper.dart';
@@ -32,12 +34,14 @@ class TableGenerator {
         enumsUsed = false;
         final tableName = table.key;
 
-        if (config.tableMappings.isNotEmpty && config.tableMappings.containsKey(tableName)) {
+        if (config.tableMappings.isNotEmpty &&
+            config.tableMappings.containsKey(tableName)) {
           mappedTableName = config.tableMappings[tableName];
         }
 
-        final className = toPascalCase(mappedTableName  ?? tableName);
-        final generateIsar = (config.generateIsar && config.includedTables.contains(tableName));
+        final className = toPascalCase(mappedTableName ?? tableName);
+        final generateIsar =
+            (config.generateIsar && config.includedTables.contains(tableName));
 
         final classBuffer = StringBuffer();
         classBuffer.writeln('class $className {');
@@ -64,6 +68,17 @@ class TableGenerator {
           final fieldName = toCamelCase(colName);
           classBuffer.writeln('  final $dartType $fieldName;');
         }
+
+        // Converters
+        classBuffer
+          ..writeln(
+              '\n  static List<$className> converter(List<Map<String, dynamic>> data) {')
+          ..writeln('    return data.map($className.fromJson).toList();')
+          ..writeln('  }\n')
+          ..writeln(
+              '  static $className converterSingle(Map<String, dynamic> data) {')
+          ..writeln('    return $className.fromJson(data);')
+          ..writeln('  }');
 
         // Constructor
         classBuffer
@@ -114,10 +129,9 @@ class TableGenerator {
           ..writeln('  }')
           ..writeln('}');
 
+        final importBuffer = StringBuffer();
 
-    final importBuffer = StringBuffer();
-
-        if(enumsUsed == true){
+        if (enumsUsed == true) {
           if (schemaDir == tablesDir) {
             importBuffer.writeln("import '../enums.dart';\n");
           } else {
@@ -148,7 +162,8 @@ class TableGenerator {
         fileBuffer.write(importBuffer);
         fileBuffer.write(classBuffer);
 
-        final formatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
+        final formatter =
+            DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
         final formattedCode = formatter.format(fileBuffer.toString());
 
         await File(path.join(schemaDir.path, toSnakeCase(fileName)))
