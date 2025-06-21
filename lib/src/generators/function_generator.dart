@@ -1,16 +1,18 @@
 import 'dart:io';
+
+import 'package:dart_style/dart_style.dart';
 import 'package:path/path.dart' as path;
+
 import '../supabase_type_mapper.dart';
 import '../utils.dart';
-import 'package:dart_style/dart_style.dart';
 
 class FunctionGenerator {
   static bool enumsUsed = false;
   static Future<void> generate(
-      String outputDir,
-      List<Map<String, dynamic>> functions,
-      List<String> enumNames,
-      ) async {
+    String outputDir,
+    List<Map<String, dynamic>> functions,
+    List<String> enumNames,
+  ) async {
     final functionsDir = Directory(outputDir);
     await functionsDir.create(recursive: true);
     final buffer = StringBuffer()
@@ -18,7 +20,8 @@ class FunctionGenerator {
       ..writeln("import 'enums.dart';\n")
       ..writeln('class SupabaseFunctions {')
       ..writeln('  SupabaseFunctions();\n')
-      ..writeln('  final SupabaseClient supabase = Supabase.instance.client;\n');
+      ..writeln(
+          '  final SupabaseClient supabase = Supabase.instance.client;\n');
 
     for (final function in functions) {
       final name = function['function_name'] as String;
@@ -28,7 +31,13 @@ class FunctionGenerator {
       }
       var args = <FunctionArg>[];
       if (function['arguments'].isNotEmpty) {
-        args = _parseArgs((function['arguments'] as String?)?.split(',').map((e) => e.trim()).toList() ?? [], enumNames);
+        args = _parseArgs(
+            (function['arguments'] as String?)
+                    ?.split(',')
+                    .map((e) => e.trim())
+                    .toList() ??
+                [],
+            enumNames);
       } else {
         args = [];
       }
@@ -40,7 +49,9 @@ class FunctionGenerator {
       buffer.writeln('''
   Future<$returnType> ${toCamelCase(name)}(${args.isNotEmpty ? '{' : ''}${args.map((a) => 'required ${a.dartType} ${a.name},').join('\n    ')}${args.isNotEmpty ? '}' : ''}) async {
     ''');
-      returnType == 'void' ? buffer.writeln('''     await supabase.rpc(''') : buffer.writeln('''      final response = await supabase.rpc(''');
+      returnType == 'void'
+          ? buffer.writeln('''     await supabase.rpc(''')
+          : buffer.writeln('''      final response = await supabase.rpc(''');
 
       buffer.writeln('''
       '$name',${args.isNotEmpty ? '''
@@ -52,11 +63,11 @@ class FunctionGenerator {
     ${_returnStatement(returnType)}
   }''');
       buffer.writeln();
-
     }
 
     buffer.writeln('}');
-    final formatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
+    final formatter =
+        DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
     final formattedCode = formatter.format(buffer.toString());
 
     await File(path.join(functionsDir.path, 'supabase_functions.dart'))
@@ -92,7 +103,8 @@ class FunctionGenerator {
     return 'return response;';
   }
 
-  static String _toDartType(String pgType, List<String> enumNames, {bool nullable = false}) {
+  static String _toDartType(String pgType, List<String> enumNames,
+      {bool nullable = false}) {
     if (pgType.startsWith('TABLE') || pgType.startsWith('SETOF')) {
       return _toDartType('jsonb[]', enumNames, nullable: true);
     }
@@ -108,7 +120,6 @@ class FunctionGenerator {
       return nullable ? '$pascalCaseType?' : pascalCaseType;
     }
     final dartType = SupabaseTypeMapper.toDartType(pgType);
-
 
     return dartType;
   }
