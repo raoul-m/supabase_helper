@@ -1,5 +1,4 @@
 class FunctionsSql {
-
   String getQuery(List<String> schemas) {
     String schemasString = schemas.map((e) => e).join("', '");
     String query = '''

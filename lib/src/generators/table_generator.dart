@@ -89,14 +89,32 @@ class TableGenerator {
               .join(',\n'))
           ..writeln('\n });');
 
-        // fromJson
+// fromJson
         classBuffer
           ..writeln(
               '\n  factory $className.fromJson(Map<String, dynamic> json) => $className(')
           ..write(columns.map((c) {
             final name = c.name;
             final fieldName = toCamelCase(name);
-            return '    $fieldName: json[\'$name\'] as ${_toDartType(c.format, enumNames)}';
+            final format = c.format;
+            final isNullable = c.isNullable;
+
+            if (format.startsWith('_')) {
+              // Handle List types by mapping over the List<dynamic>
+              final baseFormat = format.substring(1);
+              final baseDartType = _toDartType(baseFormat, enumNames);
+
+              if (isNullable) {
+                return '    $fieldName: (json[\'$name\'] as List<dynamic>?)?.map((e) => e as $baseDartType).toList()';
+              } else {
+                return '    $fieldName: (json[\'$name\'] as List<dynamic>).map((e) => e as $baseDartType).toList()';
+              }
+            } else {
+              // Handle scalar types with a direct cast
+              final dartType =
+                  _toDartType(format, enumNames, nullable: isNullable);
+              return '    $fieldName: json[\'$name\'] as $dartType';
+            }
           }).join(',\n'))
           ..writeln(');');
 
