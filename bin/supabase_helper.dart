@@ -5,9 +5,8 @@ import 'package:supabase_helper/supabase_helper.dart';
 
 Future<void> main(List<String> args) async {
   final parser = ArgParser()
-    ..addOption('project-ref',
-        help: 'Supabase project reference ID', mandatory: true)
-    ..addOption('access-token', help: 'Supabase access-token', mandatory: true)
+    ..addOption('project-ref', help: 'Supabase project reference ID')
+    ..addOption('access-token', help: 'Supabase access-token')
     ..addOption('output', abbr: 'o')
     ..addOption('config', abbr: 'c', defaultsTo: 'supabase_helper.yaml');
   print('✅  Supabase Helper is powering up!');
@@ -16,11 +15,21 @@ Future<void> main(List<String> args) async {
   final configFile = File(results['config'] as String);
   final config = GeneratorConfig.fromYaml(await configFile.readAsString());
   final outputDir = results['output'] as String? ?? config.outputDir;
+
+  final projectRef = results['project-ref'] as String? ?? config.projectRef;
+
+  final accessToken = results['access-token'] as String? ?? config.accessToken;
+  if (projectRef == null) {
+    throw ArgumentError('Supabase project reference ID is not provided. '
+        'Please provide it via --project-ref option or in the config file.');
+  }
+  if (accessToken == null) {
+    throw ArgumentError('Supabase access-token is not provided. '
+        'Please provide it via --access-token option or in the config file.');
+  }
   print(' Output directory: $outputDir');
-  final api = SupabaseManagementApi(
-    projectRef: results['project-ref'] as String,
-    accessToken: results['access-token'] as String,
-  );
+  final api =
+      SupabaseManagementApi(projectRef: projectRef, accessToken: accessToken);
 
   try {
     late List<String> enumNames = [];

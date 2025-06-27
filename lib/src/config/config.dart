@@ -1,6 +1,8 @@
 import 'package:yaml/yaml.dart';
 
 class GeneratorConfig {
+  final String? projectRef;
+  final String? accessToken;
   final bool generateEnums;
   final bool generateTables;
   final bool generateFunctions;
@@ -13,6 +15,8 @@ class GeneratorConfig {
   final String outputDir;
 
   GeneratorConfig({
+    this.projectRef,
+    this.accessToken,
     required this.generateEnums,
     required this.generateTables,
     required this.generateFunctions,
@@ -27,6 +31,8 @@ class GeneratorConfig {
 
   factory GeneratorConfig.fromYaml(String content) {
     final yaml = loadYaml(content);
+    final projectRef = yaml['project-ref'] as String?;
+    final accessToken = yaml['access-token'] as String?;
     final enumConfig = yaml['enums'] ?? {};
     final tableConfig = yaml['tables'] ?? {};
     final functionConfig = yaml['functions'] ?? {};
@@ -34,6 +40,8 @@ class GeneratorConfig {
     print('isarConfig: $isarConfig');
 
     return GeneratorConfig(
+      projectRef: projectRef,
+      accessToken: accessToken,
       generateEnums: enumConfig['disabled'] == true ? false : true,
       generateTables: tableConfig?['disabled'] == true ? false : true,
       generateFunctions: functionConfig?['disabled'] == true ? false : true,

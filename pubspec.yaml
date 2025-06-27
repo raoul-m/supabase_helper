@@ -1,6 +1,6 @@
 name: supabase_helper
 description: Generates Dart models/enums/functions from Supabase. Add annotation to your generated classes automatically.
-version: 0.0.4
+version: 0.0.5
 repository: https://github.com/raoul-m/supabase_helper
 
 environment:
