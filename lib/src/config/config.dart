@@ -31,13 +31,12 @@ class GeneratorConfig {
 
   factory GeneratorConfig.fromYaml(String content) {
     final yaml = loadYaml(content);
-    final projectRef = yaml['project-ref'] as String?;
-    final accessToken = yaml['access-token'] as String?;
+    final projectRef = yaml['project-ref']?.toString();
+    final accessToken = yaml['access-token']?.toString();
     final enumConfig = yaml['enums'] ?? {};
     final tableConfig = yaml['tables'] ?? {};
     final functionConfig = yaml['functions'] ?? {};
     final isarConfig = yaml['isar'] ?? {};
-    print('isarConfig: $isarConfig');
 
     return GeneratorConfig(
       projectRef: projectRef,
