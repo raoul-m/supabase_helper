@@ -89,7 +89,7 @@ class TableGenerator {
               .join(',\n'))
           ..writeln('\n });');
 
-// fromJson
+        // fromJson
         classBuffer
           ..writeln(
               '\n  factory $className.fromJson(Map<String, dynamic> json) => $className(')
@@ -146,6 +146,16 @@ class TableGenerator {
           ..writeln('    );')
           ..writeln('  }')
           ..writeln('}');
+
+        // toString
+        classBuffer
+          ..writeln('\n  @override')
+          ..writeln('  String toString() {')
+          ..writeln('    return \'$className(${columns.map((c) {
+            final fieldName = toCamelCase(c.name);
+            return '$fieldName: \$$fieldName';
+          }).join(', ')})\';')
+          ..writeln('  }');
 
         final importBuffer = StringBuffer();
 
