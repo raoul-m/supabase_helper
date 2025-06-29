@@ -144,8 +144,7 @@ class TableGenerator {
             return '      $fieldName: $fieldName ?? this.$fieldName';
           }).join(',\n'))
           ..writeln('    );')
-          ..writeln('  }')
-          ..writeln('}');
+          ..writeln('  }');
 
         // toString
         classBuffer
@@ -156,6 +155,9 @@ class TableGenerator {
             return '$fieldName: \$$fieldName';
           }).join(', ')})\';')
           ..writeln('  }');
+
+        // Ending the class
+        classBuffer.writeln('}');
 
         final importBuffer = StringBuffer();
 
