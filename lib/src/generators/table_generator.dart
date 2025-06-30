@@ -121,7 +121,7 @@ class TableGenerator {
                 format == 'date' ||
                 format == 'timestamptz') {
               // Handle DateTime types
-              return '    $fieldName: json[\'$name\'] != null ? DateTime.tryParse(json[\'$name\'].toString()) as DateTime : DateTime.fromMillisecondsSinceEpoch(0)';
+              return '    $fieldName: json[\'$name\'] != null ? (DateTime.tryParse(json[\'$name\'].toString()) ?? DateTime.fromMillisecondsSinceEpoch(0)) : DateTime.fromMillisecondsSinceEpoch(0)';
             } else if (enumNames.contains(toPascalCase(format))) {
               // Handle enum types
               return isNullable
