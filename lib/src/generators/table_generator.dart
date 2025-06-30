@@ -99,7 +99,15 @@ class TableGenerator {
             final format = c.format;
             final isNullable = c.isNullable;
 
-            if (format.startsWith('_')) {
+            if (format.startsWith('_') &&
+                enumNames.contains(toPascalCase(format))) {
+              // Handle List of enum types
+              final baseFormat = format.substring(1);
+              final enumType = toPascalCase(baseFormat);
+              return isNullable
+                  ? '    $fieldName: (json[\'$name\'] as List<dynamic>?)?.map((e) => $enumType.values.where((g) => g.name == e).firstOrNull).whereType<$enumType>().toList()'
+                  : '    $fieldName: (json[\'$name\'] as List<dynamic>).map((e) => $enumType.values.where((g) => g.name == e).firstOrNull).whereType<$enumType>().toList()';
+            } else if (format.startsWith('_')) {
               // Handle List types by mapping over the List<dynamic>
               final baseFormat = format.substring(1);
               final baseDartType = _toDartType(baseFormat, enumNames);
@@ -109,6 +117,27 @@ class TableGenerator {
               } else {
                 return '    $fieldName: (json[\'$name\'] as List<dynamic>).map((e) => e as $baseDartType).toList()';
               }
+            } else if (format == 'timestamp' ||
+                format == 'date' ||
+                format == 'timestamptz') {
+              // Handle DateTime types
+              return '    $fieldName: json[\'$name\'] != null ? DateTime.tryParse(json[\'$name\'].toString()) as DateTime : DateTime.fromMillisecondsSinceEpoch(0)';
+            } else if (enumNames.contains(toPascalCase(format))) {
+              // Handle enum types
+              return isNullable
+                  ? '    $fieldName: json[\'$name\'] != null ? ${toPascalCase(format)}.values.where((g) => g.name == json[\'$name\']).firstOrNull : null'
+                  : '    $fieldName: ${toPascalCase(format)}.values.firstWhere((g) => g.name == json[\'$name\'])';
+            } else if (format == 'json' || format == 'jsonb') {
+              return isNullable
+                  ? '    $fieldName: json[\'$name\'] is Map<String, dynamic> ? json[\'$name\'] as Map<String, dynamic>? : null'
+                  : '    $fieldName: json[\'$name\'] as Map<String, dynamic>';
+            } else if (format == 'numeric' ||
+                format == 'float4' ||
+                format == 'float8') {
+              // Special handling for average_rating: int or double
+              return isNullable
+                  ? '    $fieldName: (json[\'$name\'] is int) ? (json[\'$name\'] as int).toDouble() : json[\'$name\'] as double?'
+                  : '    $fieldName: (json[\'$name\'] is int) ? (json[\'$name\'] as int).toDouble() : json[\'$name\'] as double';
             } else {
               // Handle scalar types with a direct cast
               final dartType =
